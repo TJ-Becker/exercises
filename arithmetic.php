@@ -7,17 +7,30 @@ function add($a, $b)
 
 function subtract($a, $b)
 {
-    // Add code here
+    return ($a - $b);
 }
 
 function multiply($a, $b)
 {
-    // Add code here
+    return ($a * $b);
 }
 
 function divide($a, $b)
 {
-    // Add code here
+    return ($a / $b);
 }
 
-// Add code to test your functions here
+function modulus ($a, $b)
+{
+    return ($a % $b);
+}
+
+$a = 10;
+$b = 15;
+
+echo "For numbers 8 and 4.", PHP_EOL;
+echo "sum: " . add(8, 4), PHP_EOL;
+echo "difference: " . subtract(8, 4), PHP_EOL;
+echo "product: " . multiply(8, 4), PHP_EOL;
+echo "quotient: " . divide(8, 4), PHP_EOL;
+echo "modulus: " . modulus(8, 4), PHP_EOL;
