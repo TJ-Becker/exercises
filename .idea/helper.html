@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Testing out Ajax</title>
+    <meta charset="utf8">
+</head>
+<body>
+<div id="temp"><h1></h1></div>
+<script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script type="text/javascript">
+    "use strict"
+
+    $.get("http://api.openweathermap.org/data/2.5/weather", {
+        APPID: "30fe4fce07b66d9c5f4503c3f94f62f6",
+        lat:    29.423017,
+        lon:   -98.48527,
+        units: "imperial"
+    }).done(function(data) {
+        console.log(data);
+    });
+    $('#temp').html(data.main.temp);
+
+</script>
+</body>
+</html>
