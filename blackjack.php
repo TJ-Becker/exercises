@@ -70,7 +70,7 @@
         $last = end($array);
         foreach ($array as $card) {
             if ($card === $last) {
-                echo "{$card[0]}", PHP_EOL;
+                echo "{$card[0]}";
             } else {
                 echo "{$card[0]}, ";
             }
@@ -79,58 +79,104 @@
 
     function handValue(&$hand) {
         $value = 0;
+        $aces = 0;
         foreach ($hand as $key => $card) {
             if ($card[2] === 11) {
-                $aces = [];
-                $aces[] = $card;
-                unset($hand[$key]);
-                foreach ($aces as $ace) {
-                    $hand[] = $ace;
-                }
+                $value += $card[2];
+                $aces++;
+            } else {
+                $value += $card[1];
             }
-            $value += $card[1];
-            if ($value == 21) {
+            if ($value == 21 && $key == 1) {
                 $value = "Blackjack!";
             } else if ($value > 21) {
-                $value = "Bust.";
+                while ($aces > 0 && $value > 21) {
+                    $value -= 10;
+                    $aces--;
+                }
+                if ($value > 21) {
+                    $value = "Bust.";
+                } else if ($value == 21) {
+                    $value = 21;
+                }
             }
         }
         return $value;
     }
 
+    function bet(&$chips, $bet, $win = true) {
+        if ($win) {
+            $chips += $bet;
+        } else {
+            $chips -= $bet;
+        }
+    }
 
+$chips = 1000;
 
+do {
+    $dealerHand = [];
+    $hand = [];
     $deck = newDeck();
     $dealerCard = randomCard($deck);
     $card = randomCard($deck);
     $dealerHand[] = $dealerCard;
     $hand[] = $card;
 
-    echo "DEALER HAND: ";
+    echo "Chips: {$chips}" . PHP_EOL;
+    fwrite(STDOUT, "How much would you like to bet? ");
+    $bet = fgets(STDIN);
+    echo "\nDEALER HAND: ";
     displayHand($dealerHand);
-    echo "Your hand: ";
+    echo "\nYour hand: ";
     displayHand($hand);
 
-    fwrite(STDOUT, "Hit? (y/n) \n");
+    fwrite(STDOUT, "\nHit? (y/n) \n");
     $hit = trim(fgets(STDIN));
     if ($hit === "y") {
         do {
             $card = randomCard($deck);
             $hand[] = $card;
             handValue($hand);
-            echo "Your hand: ";
+            echo "\nYour hand: ";
             displayHand($hand);
-            echo handValue($hand), PHP_EOL;
+            echo ' (' . handValue($hand) . ')', PHP_EOL;
             if (!is_int(handValue($hand))) {
                 break;
             }
             fwrite(STDOUT, "Hit? (y/n) \n");
-            $hit = fgets(STDIN);
-        } while ($hit !== "n");
+            $hit = trim(fgets(STDIN));
+        } while ($hit != "n");
     }
 
+    if ((handValue($hand) != "Bust.") && (handValue($hand) != "Blackjack!")) {
+        echo "\nDEALER HAND: ";
+        displayHand($dealerHand);
+        echo " (" . handValue($dealerHand) . ")" . "\n";
+        do {
+            $card = randomCard($deck);
+            $dealerHand[] = $card;
+            echo "Dealer hits. Draws {$card[0]}. " . '(' . handValue($dealerHand) . ')' . PHP_EOL;
+        } while ((handValue($dealerHand) < 17) && (handValue($dealerHand) != "Bust.") && (handValue($dealerHand) != "Blackjack!"));
+    }
 
+    if (handValue($hand) == "Blackjack!") {
+        echo "You win! \n";
+        bet($chips, $bet);
+    } else if ((handValue($hand) == "Bust.")) {
+        echo "You busted. \n";
+        bet($chips, $bet, false);
+    } else if (handValue($hand) === handValue($dealerHand)) {
+        echo "Push. \n";
+    } else if (handValue($hand) > handValue($dealerHand)) {
+        echo "You win! \n";
+        bet($chips, $bet);
+    } else if (handValue($hand) < handValue($dealerHand)) {
+        echo "You lose. \n";
+        bet($chips, $bet, false);
+    }
 
-
+} while ($chips > 0);
+echo "Game Over.  You're broke. \n";
 
 
